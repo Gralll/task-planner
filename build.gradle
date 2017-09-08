@@ -3,24 +3,60 @@ buildscript {
 		springBootVersion = '1.5.6.RELEASE'
 	}
 	repositories {
+		mavenLocal()
 		mavenCentral()
+		jcenter()
+		maven { url "http://repo.spring.io/plugins-release" }
+		//maven { url "http://repo.spring.io/milestone" }
+		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "net.ltgt.gradle:gradle-apt-plugin:0.9"
 	}
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: "net.ltgt.apt"
+
 
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
+	mavenLocal()
 	mavenCentral()
+	jcenter()
+	maven { url 'http://repo.spring.io/milestone' }
+	maven { url 'http://repo.spring.io/snapshot' }
+	maven { url 'https://repository.jboss.org/nexus/content/repositories/releases' }
+	maven { url 'https://oss.sonatype.org/content/repositories/releases' }
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+	maven { url 'http://repo.maven.apache.org/maven2' }
 }
 
+jar {
+	baseName = 'task-planner'
+	version =  '0.0.1'
+}
+
+task fatJar(type: Jar) {
+	manifest {
+		attributes 'Implementation-Title': 'Gradle Jar File Example',
+				'Implementation-Version': version,
+				'Main-Class': 'com.gralll.taskplanner.TaskPlannerApplication'
+	}
+	baseName = project.name + '-all'
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = "3.2";
+}
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-aop')
@@ -28,9 +64,23 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-validation')
 	compile('org.springframework.boot:spring-boot-starter-web')
-	runtime('com.h2database:h2')
-	runtime('org.postgresql:postgresql')
-	compileOnly('org.projectlombok:lombok')
+	compile('org.springframework.boot:spring-boot-devtools')
+
+	compile('com.h2database:h2')
+	compile('org.postgresql:postgresql')
+	compile 'org.mapstruct:mapstruct:1.1.0.Final'
+    compileOnly('org.projectlombok:lombok')
+	compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org"
+	compile "com.fasterxml.jackson.datatype:jackson-datatype-hppc"
+	compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+	compile "com.fasterxml.jackson.datatype:jackson-datatype-hibernate5"
+	compile "com.fasterxml.jackson.core:jackson-annotations"
+	compile "com.fasterxml.jackson.core:jackson-databind"
+	compile "com.fasterxml.jackson.module:jackson-module-afterburner"
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.security:spring-security-test')
+
+	apt "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+	apt "org.hibernate:hibernate-jpamodelgen:${hibernate_version}"
 }

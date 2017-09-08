@@ -1,0 +1,48 @@
+server:
+    port: 8080
+
+spring:
+    profiles:
+        active: dev
+    datasource:
+        dataSourceClassName: org.h2.jdbcx.JdbcDataSource
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        platform: h2
+        username: sa
+        password:
+        driverClassName: org.h2.Driver
+
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        database: H2
+        openInView: false
+        show_sql: true
+        hibernate:
+            ddl-auto: create-drop
+        properties:
+           hibernate:
+              show_sql: true
+              use_sql_comments: true
+              format_sql: true
+
+    data:
+        jpa.repositories.enabled: true
+
+    h2:
+        console:
+            enabled: true
+            settings:
+               trace: false
+               web-allow-others: false
+
+    security:
+        basic:
+            enabled: false
+
+logging:
+    file: app.log
+    level:
+        root: DEBUG
+        org.springframework.web: DEBUG
+        com.gralll.taskplanner: DEBUG
+        hibernate: INFO
