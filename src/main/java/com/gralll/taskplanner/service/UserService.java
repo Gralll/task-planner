@@ -5,8 +5,11 @@ import com.gralll.taskplanner.repository.AuthorityRepository;
 import com.gralll.taskplanner.repository.UserRepository;
 import com.gralll.taskplanner.security.AuthoritiesConstants;
 import com.gralll.taskplanner.service.dto.UserDTO;
+import com.gralll.taskplanner.service.dto.UserWithPasswordDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +46,7 @@ public class UserService {
         return userRepository.findOneByEmail(email);
     }
 
-    public User createUser(UserDTO userDTO) {
+    public User createUser(UserWithPasswordDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin());
         user.setFirstName(userDTO.getFirstName());
@@ -57,5 +60,15 @@ public class UserService {
         userRepository.save(user);
         log.debug("User was created: {}", user);
         return user;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
+        return userRepository.findOneWithAuthoritiesByLogin(login);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserDTO> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserDTO::new);
     }
 }
