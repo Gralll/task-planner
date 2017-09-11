@@ -62,7 +62,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         .and()
             .authorizeRequests()
             .antMatchers("/users").permitAll()
-            .antMatchers("/users/**").authenticated()
+            //.antMatchers("/users/**").authenticated()
             .antMatchers("/tasks").authenticated()
         .and()
             .addFilterBefore(new JWTFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);

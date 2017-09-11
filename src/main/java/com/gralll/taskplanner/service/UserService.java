@@ -4,6 +4,7 @@ import com.gralll.taskplanner.domain.User;
 import com.gralll.taskplanner.repository.AuthorityRepository;
 import com.gralll.taskplanner.repository.UserRepository;
 import com.gralll.taskplanner.security.AuthoritiesConstants;
+import com.gralll.taskplanner.security.SecurityUtils;
 import com.gralll.taskplanner.service.dto.UserDTO;
 import com.gralll.taskplanner.service.dto.UserWithPasswordDTO;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -62,6 +64,18 @@ public class UserService {
         return user;
     }
 
+    public void updateUser(UserDTO userDTO) {
+        userRepository
+                .findOneByLogin(SecurityUtils.getCurrentUserLogin())
+                .ifPresent(user -> {
+                    user.setLogin(userDTO.getLogin());
+                    user.setFirstName(userDTO.getFirstName());
+                    user.setLastName(userDTO.getLastName());
+                    user.setEmail(userDTO.getEmail());
+                    log.debug("Changed Information for User: {}", user);
+                });
+    }
+
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithAuthoritiesByLogin(login);
@@ -70,5 +84,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(UserDTO::new);
+    }
+
+    @Transactional(propagation = Propagation.NEVER)
+    public boolean isValidPassword(String requestPassword, String encodedPassword) {
+        return passwordEncoder.matches(requestPassword, encodedPassword);
     }
 }

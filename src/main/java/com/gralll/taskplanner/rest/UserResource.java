@@ -2,6 +2,7 @@ package com.gralll.taskplanner.rest;
 
 import com.gralll.taskplanner.config.Constants;
 import com.gralll.taskplanner.domain.User;
+import com.gralll.taskplanner.security.SecurityUtils;
 import com.gralll.taskplanner.service.UserService;
 import com.gralll.taskplanner.service.dto.UserDTO;
 import com.gralll.taskplanner.service.dto.UserWithPasswordDTO;
@@ -12,9 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +26,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserResource {
@@ -30,7 +35,7 @@ public class UserResource {
 
     private final UserService userService;
 
-    public UserResource(UserService userService) {
+    public UserResource(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
     }
 
@@ -58,6 +63,30 @@ public class UserResource {
         }
     }
 
+    @PutMapping("/users")
+    public ResponseEntity updateUser(@Valid @RequestBody UserWithPasswordDTO userDTO) throws URISyntaxException {
+        log.debug("REST request to update User : {}", userDTO);
+
+        if (!SecurityUtils.isAuthenticated()) {
+            throw  new AccessDeniedException("An update is only for authorized users");
+        }
+
+        final String userLogin = SecurityUtils.getCurrentUserLogin();
+        Optional<User> existingUser = userService.findOneByLogin(userLogin);
+
+        if (existingUser.isPresent() && (!userService.isValidPassword(userDTO.getPassword(), existingUser.get().getPassword()))) {
+            return ResponseEntity.badRequest().header("error", "Password is incorrect").body(null);
+        }
+        return userService
+                .findOneByLogin(userLogin)
+                .map(user -> {
+                    userService.updateUser(userDTO);
+                    return new ResponseEntity(HttpStatus.OK);
+                })
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable) {
         final Page<UserDTO> page = userService.getAllUsers(pageable);
@@ -71,6 +100,5 @@ public class UserResource {
                 .map(UserDTO::new).map(response -> ResponseEntity.ok().headers(null).body(response))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
 
 }

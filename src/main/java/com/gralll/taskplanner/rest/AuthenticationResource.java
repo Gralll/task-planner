@@ -54,9 +54,6 @@ public class AuthenticationResource {
         }
     }
 
-    /**
-     * Object to return as body in JWT Authentication.
-     */
     static class JWTToken {
 
         private String idToken;
