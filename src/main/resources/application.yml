@@ -38,6 +38,11 @@ spring:
     security:
         basic:
             enabled: false
+        authentication:
+            jwt:
+                secret: my-secret-token-to-change-in-production
+                #24 hours
+                token-validity-in-seconds: 86400
 
 logging:
     file: app.log

@@ -128,6 +128,6 @@ public class UserDTO {
 
     @Override
     public String toString() {
-        return ReflectionToStringBuilder.toStringExclude(this);
+        return ReflectionToStringBuilder.toString(this);
     }
 }
