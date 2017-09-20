@@ -20,6 +20,8 @@ import javax.annotation.PostConstruct;
 import static com.gralll.taskplanner.TaskPlannerApplication.SPRING_PROFILE_DEV;
 
 @Configuration
+//@EnableWebSecurity
+//@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Profile(SPRING_PROFILE_DEV)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
