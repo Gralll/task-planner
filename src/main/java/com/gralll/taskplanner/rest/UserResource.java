@@ -4,9 +4,8 @@ import com.gralll.taskplanner.config.Constants;
 import com.gralll.taskplanner.domain.User;
 import com.gralll.taskplanner.security.SecurityUtils;
 import com.gralll.taskplanner.service.UserService;
-import com.gralll.taskplanner.service.dto.UserDTO;
-import com.gralll.taskplanner.service.dto.UserWithPasswordDTO;
-import io.swagger.annotations.ApiParam;
+import com.gralll.taskplanner.service.dto.UserDto;
+import com.gralll.taskplanner.service.dto.UserWithPasswordDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -40,23 +39,23 @@ public class UserResource {
     }
 
     @PostMapping("/users")
-    public ResponseEntity createUser(@Valid @RequestBody UserWithPasswordDTO userDTO) throws URISyntaxException {
-        log.debug("REST request to save User : {}", userDTO);
+    public ResponseEntity createUser(@Valid @RequestBody UserWithPasswordDto userDto) throws URISyntaxException {
+        log.debug("REST request to save User : {}", userDto);
 
-        if (userDTO.getId() != null) {
+        if (userDto.getId() != null) {
             return ResponseEntity.badRequest()
                     .header("error", "New user should not have id")
                     .body(null);
-        } else if (userService.findOneByLogin(userDTO.getLogin().toLowerCase()).isPresent()) {
+        } else if (userService.findOneByLogin(userDto.getLogin().toLowerCase()).isPresent()) {
             return ResponseEntity.badRequest()
                     .header("error", "Such login already exists")
                     .body(null);
-        } else if (userService.findOneByEmail(userDTO.getEmail()).isPresent()) {
+        } else if (userService.findOneByEmail(userDto.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
                     .header("error", "Such email already exists")
                     .body(null);
         } else {
-            User newUser = userService.createUser(userDTO);
+            User newUser = userService.createUser(userDto);
             return ResponseEntity.created(new URI("users/" + newUser.getLogin()))
                     .header("alert", "User was created: " + newUser.getLogin())
                     .body(newUser);
@@ -64,8 +63,8 @@ public class UserResource {
     }
 
     @PutMapping("/users")
-    public ResponseEntity updateUser(@Valid @RequestBody UserWithPasswordDTO userDTO) throws URISyntaxException {
-        log.debug("REST request to update User : {}", userDTO);
+    public ResponseEntity updateUser(@Valid @RequestBody UserWithPasswordDto userDto) throws URISyntaxException {
+        log.debug("REST request to update User : {}", userDto);
 
         if (!SecurityUtils.isAuthenticated()) {
             throw  new AccessDeniedException("An update is only for authorized users");
@@ -74,13 +73,13 @@ public class UserResource {
         final String userLogin = SecurityUtils.getCurrentUserLogin();
         Optional<User> existingUser = userService.findOneByLogin(userLogin);
 
-        if (existingUser.isPresent() && (!userService.isValidPassword(userDTO.getPassword(), existingUser.get().getPassword()))) {
+        if (existingUser.isPresent() && (!userService.isValidPassword(userDto.getPassword(), existingUser.get().getPassword()))) {
             return ResponseEntity.badRequest().header("error", "Password is incorrect").body(null);
         }
         return userService
                 .findOneByLogin(userLogin)
                 .map(user -> {
-                    userService.updateUser(userDTO);
+                    userService.updateUser(userDto);
                     return new ResponseEntity(HttpStatus.OK);
                 })
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -88,16 +87,16 @@ public class UserResource {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable) {
-        final Page<UserDTO> page = userService.getAllUsers(pageable);
+    public ResponseEntity<List<UserDto>> getAllUsers(Pageable pageable) {
+        final Page<UserDto> page = userService.getAllUsers(pageable);
         return ResponseEntity.ok().header(null).body(page.getContent());
     }
 
     @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable String login) {
+    public ResponseEntity<UserDto> getUser(@PathVariable String login) {
         log.debug("Request to get User : {}", login);
         return userService.getUserWithAuthoritiesByLogin(login)
-                .map(UserDTO::new).map(response -> ResponseEntity.ok().headers(null).body(response))
+                .map(UserDto::new).map(response -> ResponseEntity.ok().headers(null).body(response))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 

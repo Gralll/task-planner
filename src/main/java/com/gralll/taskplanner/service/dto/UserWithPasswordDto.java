@@ -6,7 +6,7 @@ import com.gralll.taskplanner.domain.User;
 import javax.validation.constraints.Size;
 import java.util.stream.Collectors;
 
-public class UserWithPasswordDTO extends UserDTO {
+public class UserWithPasswordDto extends UserDto {
 
     public static final int PASSWORD_MIN_LENGTH = 4;
 
@@ -15,10 +15,10 @@ public class UserWithPasswordDTO extends UserDTO {
     @Size(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
     private String password;
 
-    public UserWithPasswordDTO() {
+    public UserWithPasswordDto() {
     }
 
-    public UserWithPasswordDTO(User user) {
+    public UserWithPasswordDto(User user) {
         super(user.getId(), user.getLogin(), user.getFirstName(),
                 user.getLastName(), user.getEmail(), user.getCreatedDate(),
                 user.getAuthorities().stream().map(Authority::getName)
@@ -29,6 +29,10 @@ public class UserWithPasswordDTO extends UserDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

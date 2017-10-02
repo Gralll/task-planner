@@ -13,10 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UserDTO {
-
-    public static final int PASSWORD_MIN_LENGTH = 4;
-    public static final int PASSWORD_MAX_LENGTH = 100;
+public class UserDto {
 
     private Long id;
 
@@ -24,9 +21,6 @@ public class UserDTO {
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 100)
     private String login;
-
-    /*@Size(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
-    private String password;*/
 
     @Size(max = 50)
     private String firstName;
@@ -42,17 +36,17 @@ public class UserDTO {
 
     private Set<String> authorities;
 
-    public UserDTO() {
+    public UserDto() {
     }
 
-    public UserDTO(User user) {
+    public UserDto(User user) {
         this(user.getId(), user.getLogin(), user.getFirstName(),
                 user.getLastName(), user.getEmail(), user.getCreatedDate(),
                 user.getAuthorities().stream().map(Authority::getName)
                         .collect(Collectors.toSet()));
     }
 
-    public UserDTO(Long id, String login, String firstName, String lastName, String email, LocalDateTime createdDate, Set<String> authorities) {
+    public UserDto(Long id, String login, String firstName, String lastName, String email, LocalDateTime createdDate, Set<String> authorities) {
         this.id = id;
         this.login = login;
         this.firstName = firstName;
@@ -77,14 +71,6 @@ public class UserDTO {
     public void setLogin(String login) {
         this.login = login;
     }
-
-   /* public String getPassword() {
-        return password;
-    }*/
-
-    /*public void setPassword(String password) {
-        this.password = password;
-    }*/
 
     public String getFirstName() {
         return firstName;

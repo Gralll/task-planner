@@ -1,5 +1,7 @@
 package com.gralll.taskplanner.security;
 
+import com.gralll.taskplanner.domain.Authority;
+import com.gralll.taskplanner.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -13,13 +15,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,6 +28,7 @@ public class TokenProvider {
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
+    private static final String USER_ID = "userId";
 
     @Value("${spring.security.authentication.jwt.secret}")
     private String secretKey;
@@ -46,6 +47,7 @@ public class TokenProvider {
         return Jwts.builder()
             .setSubject(authentication.getName())
             .claim(AUTHORITIES_KEY, authorities)
+            .claim(USER_ID, ((User)authentication.getPrincipal()).getId())
             .signWith(SignatureAlgorithm.HS512, secretKey)
             .setExpiration(validity)
             .compact();
@@ -57,12 +59,16 @@ public class TokenProvider {
             .parseClaimsJws(token)
             .getBody();
 
-        Collection<? extends GrantedAuthority> authorities =
+        Set<Authority> authorities =
             Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .map(Authority::new)
+                .collect(Collectors.toSet());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        User principal = new User();
+        principal.setLogin(claims.getSubject());
+        principal.setPassword("");
+        principal.setId(Long.valueOf(claims.get(USER_ID).toString()));
+        principal.setAuthorities(authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }

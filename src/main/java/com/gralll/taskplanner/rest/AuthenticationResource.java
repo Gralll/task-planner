@@ -3,7 +3,7 @@ package com.gralll.taskplanner.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gralll.taskplanner.security.JWTFilter;
 import com.gralll.taskplanner.security.TokenProvider;
-import com.gralll.taskplanner.service.dto.LoginDTO;
+import com.gralll.taskplanner.service.dto.LoginDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -36,10 +36,10 @@ public class AuthenticationResource {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity authorize(@Valid @RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+    public ResponseEntity authorize(@Valid @RequestBody LoginDto loginDto, HttpServletResponse response) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
 
         try {
             Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
@@ -57,6 +57,9 @@ public class AuthenticationResource {
     static class JWTToken {
 
         private String idToken;
+
+        JWTToken() {
+        }
 
         JWTToken(String idToken) {
             this.idToken = idToken;

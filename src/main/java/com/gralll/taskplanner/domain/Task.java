@@ -11,6 +11,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -40,6 +41,9 @@ public class Task {
     @Column(name = "is_active")
     @NotNull
     private Boolean isActive;
+
+    @ManyToOne
+    private User user;
 
     public Long getId() {
         return id;
@@ -79,6 +83,14 @@ public class Task {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

@@ -5,8 +5,8 @@ import com.gralll.taskplanner.repository.AuthorityRepository;
 import com.gralll.taskplanner.repository.UserRepository;
 import com.gralll.taskplanner.security.AuthoritiesConstants;
 import com.gralll.taskplanner.security.SecurityUtils;
-import com.gralll.taskplanner.service.dto.UserDTO;
-import com.gralll.taskplanner.service.dto.UserWithPasswordDTO;
+import com.gralll.taskplanner.service.dto.UserDto;
+import com.gralll.taskplanner.service.dto.UserWithPasswordDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -48,30 +48,30 @@ public class UserService {
         return userRepository.findOneByEmail(email);
     }
 
-    public User createUser(UserWithPasswordDTO userDTO) {
+    public User createUser(UserWithPasswordDto userDto) {
         User user = new User();
-        user.setLogin(userDTO.getLogin());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setEmail(userDTO.getEmail());
+        user.setLogin(userDto.getLogin());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
         user.setCreatedDate(LocalDateTime.now());
-        //user.setCreatedDate(userDTO.getCreatedDate());
+        //user.setCreatedDate(userDto.getCreatedDate());
 
         user.setAuthorities(Collections.singleton(authorityRepository.findOne(AuthoritiesConstants.USER)));
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userRepository.save(user);
         log.debug("User was created: {}", user);
         return user;
     }
 
-    public void updateUser(UserDTO userDTO) {
+    public void updateUser(UserDto userDto) {
         userRepository
                 .findOneByLogin(SecurityUtils.getCurrentUserLogin())
                 .ifPresent(user -> {
-                    user.setLogin(userDTO.getLogin());
-                    user.setFirstName(userDTO.getFirstName());
-                    user.setLastName(userDTO.getLastName());
-                    user.setEmail(userDTO.getEmail());
+                    user.setLogin(userDto.getLogin());
+                    user.setFirstName(userDto.getFirstName());
+                    user.setLastName(userDto.getLastName());
+                    user.setEmail(userDto.getEmail());
                     log.debug("Changed Information for User: {}", user);
                 });
     }
@@ -82,8 +82,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserDTO::new);
+    public Page<UserDto> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserDto::new);
     }
 
     @Transactional(propagation = Propagation.NEVER)

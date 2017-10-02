@@ -3,6 +3,7 @@ package com.gralll.taskplanner.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,7 +15,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "authority")
-public class Authority implements Serializable {
+public class Authority implements GrantedAuthority, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,12 +25,25 @@ public class Authority implements Serializable {
     @Column(length = 50)
     private String name;
 
+    public Authority() {
+
+    }
+
+    public Authority(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.name;
     }
 
     @Override

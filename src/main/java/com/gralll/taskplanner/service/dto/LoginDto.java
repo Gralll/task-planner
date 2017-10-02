@@ -7,7 +7,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-public class LoginDTO {
+public class LoginDto {
+
+    public LoginDto() {
+
+    }
+
+    public LoginDto(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @NotNull
@@ -15,7 +24,7 @@ public class LoginDTO {
     private String username;
 
     @NotNull
-    @Size(min = UserWithPasswordDTO.PASSWORD_MIN_LENGTH, max = UserWithPasswordDTO.PASSWORD_MAX_LENGTH)
+    @Size(min = UserWithPasswordDto.PASSWORD_MIN_LENGTH, max = UserWithPasswordDto.PASSWORD_MAX_LENGTH)
     private String password;
 
     public String getUsername() {

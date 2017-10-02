@@ -55,8 +55,9 @@ task fatJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = "3.2"
+	gradleVersion = "4.0"
 }
+compileJava.dependsOn(processResources)
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-aop')
@@ -66,14 +67,18 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-devtools')
 
+	compile('org.springframework.boot:spring-boot-configuration-processor')
+
+
 	compile('com.h2database:h2')
 	compile('org.postgresql:postgresql')
-	compile 'org.mapstruct:mapstruct:1.1.0.Final'
+	compile "org.mapstruct:mapstruct:${mapstruct_version}"
 	compile ("io.springfox:springfox-swagger2:2.7.0") {
 		exclude module: 'mapstruct'
 	}
-	compile "io.jsonwebtoken:jjwt:0.7.0"
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+
+	compile "io.jsonwebtoken:jjwt:${jjwt_version}"
+	compile "org.apache.commons:commons-lang3:${apache_commons}"
 
 
 	compile "com.fasterxml.jackson.datatype:jackson-datatype-json-org"
