@@ -48,6 +48,11 @@ public class UserService {
         return userRepository.findOneByEmail(email);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<User> findOneById(Long id) {
+        return userRepository.findOneById(id);
+    }
+
     public User createUser(UserWithPasswordDto userDto) {
         User user = new User();
         user.setLogin(userDto.getLogin());
