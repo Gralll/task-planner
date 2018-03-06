@@ -1,0 +1,18 @@
+test:
+    user:
+        login: gralll
+        password: 123123
+
+logging:
+    file: ${java.io.tmpdir}/app-test.log
+    level:
+        root: ERROR
+        org.springframework: ERROR
+        com.gralll.taskplanner: ERROR
+        hibernate: ERROR
+
+spring:
+    jpa:
+        properties:
+            hibernate:
+                show_sql: false

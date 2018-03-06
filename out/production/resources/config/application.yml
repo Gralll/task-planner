@@ -1,0 +1,18 @@
+spring:
+
+    application:
+        name: taskPlanner
+
+    profiles:
+        active: dev
+
+    data:
+        jpa.repositories.enabled: true
+
+logging:
+    file: app.log
+    level:
+        root: INFO
+        org.springframework.web: INFO
+        com.gralll.taskplanner: INFO
+        hibernate: INFO
