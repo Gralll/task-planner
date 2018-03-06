@@ -54,9 +54,12 @@ spring:
                 token-validity-in-seconds: 86400
 
 logging:
-    file: app.log
+    file: ${java.io.tmpdir}/app-dev.log
     level:
-        root: DEBUG
-        org.springframework.web: DEBUG
-        com.gralll.taskplanner: DEBUG
+        root: INFO
+        org.springframework.web: INFO
+        com.gralll.taskplanner: INFO
         hibernate: INFO
+    pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+        file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

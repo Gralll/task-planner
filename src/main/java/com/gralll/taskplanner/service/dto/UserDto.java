@@ -1,5 +1,6 @@
 package com.gralll.taskplanner.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gralll.taskplanner.config.Constants;
 import com.gralll.taskplanner.domain.Authority;
 import com.gralll.taskplanner.domain.User;
@@ -34,6 +35,7 @@ public class UserDto {
 
     private LocalDateTime createdDate;
 
+    @JsonIgnore
     private Set<String> authorities;
 
     public UserDto() {

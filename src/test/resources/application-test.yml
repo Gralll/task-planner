@@ -4,7 +4,7 @@ test:
         password: 123123
 
 logging:
-    file: app-test.log
+    file: ${java.io.tmpdir}/app-test.log
     level:
         root: ERROR
         org.springframework: ERROR

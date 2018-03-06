@@ -6,6 +6,10 @@ import com.gralll.taskplanner.security.SecurityUtils;
 import com.gralll.taskplanner.service.UserService;
 import com.gralll.taskplanner.service.dto.UserDto;
 import com.gralll.taskplanner.service.dto.UserWithPasswordDto;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -27,6 +31,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
+@Api(value = "User requests", description = "Expose API for working with users")
 @RestController
 public class UserResource {
 
@@ -39,6 +44,7 @@ public class UserResource {
     }
 
     @PostMapping("/users")
+    @ApiOperation(value = "Create a user")
     public ResponseEntity createUser(@Valid @RequestBody UserWithPasswordDto userDto) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDto);
 
@@ -63,6 +69,11 @@ public class UserResource {
     }
 
     @PutMapping("/users")
+    @ApiOperation(value = "Update a user")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "Authorization token",
+                    required = true, dataType = "string", paramType = "header")
+    })
     public ResponseEntity updateUser(@Valid @RequestBody UserWithPasswordDto userDto) throws URISyntaxException {
         log.debug("REST request to update User : {}", userDto);
 
@@ -87,12 +98,14 @@ public class UserResource {
     }
 
     @GetMapping("/users")
+    @ApiOperation(value = "Get all users")
     public ResponseEntity<List<UserDto>> getAllUsers(Pageable pageable) {
         final Page<UserDto> page = userService.getAllUsers(pageable);
         return ResponseEntity.ok().header(null).body(page.getContent());
     }
 
     @GetMapping("/users/{login:" + Constants.LOGIN_REGEX + "}")
+    @ApiOperation(value = "Get user by id")
     public ResponseEntity<UserDto> getUser(@PathVariable String login) {
         log.debug("Request to get User : {}", login);
         return userService.getUserWithAuthoritiesByLogin(login)

@@ -2,8 +2,8 @@ package com.gralll.taskplanner.rest;
 
 import com.gralll.taskplanner.domain.Category;
 import com.gralll.taskplanner.domain.Status;
-import com.gralll.taskplanner.rest.AuthenticationResource.JWTToken;
 import com.gralll.taskplanner.rest.props.TestUserProperties;
+import com.gralll.taskplanner.service.dto.JwtToken;
 import com.gralll.taskplanner.service.dto.LoginDto;
 import com.gralll.taskplanner.service.dto.TaskDto;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnableConfigurationProperties(TestUserProperties.class)
-@ActiveProfiles(profiles = {"dev", "test"})
+@ActiveProfiles(profiles = { "dev", "test" })
 public class CurrentUserActionResourceSystemTest {
 
     @Autowired
@@ -56,27 +56,39 @@ public class CurrentUserActionResourceSystemTest {
     }
 
     @Test
-    public void shouldGetAllTasksFromCurrentUser() {
+    public void shouldUpdateCurrentUserTasks() {
         //given
-        final TaskDto dummyTask = getDummyTask();
         final HttpHeaders headersWithToken = getHeadersWithToken();
+        HttpEntity<Object> entityForGet = new HttpEntity<>(null, headersWithToken);
+        ResponseEntity<List<TaskDto>> existingTasksResponse = this.restTemplate.exchange(
+                "/tasks",
+                HttpMethod.GET,
+                entityForGet,
+                new ParameterizedTypeReference<List<TaskDto>>() {
+                });
+
+        //when
+        final TaskDto dummyTask = getDummyTask();
         final HttpEntity<Object> entityForCreate = new HttpEntity<>(dummyTask, headersWithToken);
         this.restTemplate.postForEntity("/tasks", entityForCreate, TaskDto.class);
 
-        //when
-        HttpEntity<Object> entityForGet = new HttpEntity<>(null, headersWithToken);
+        //and
         ResponseEntity<List<TaskDto>> response = this.restTemplate.exchange(
                 "/tasks",
                 HttpMethod.GET,
                 entityForGet,
-                new ParameterizedTypeReference<List<TaskDto>>() {});
+                new ParameterizedTypeReference<List<TaskDto>>() {
+                });
 
         //then
-        List<TaskDto> tasks = response.getBody();
-        assertNotNull(tasks);
-        TaskDto task = tasks.get(0);
-        assertNotNull(task.getId());
-        assertThatEqualsDummyTask(task);
+        List<TaskDto> existedTasks = existingTasksResponse.getBody();
+        List<TaskDto> updatedTasks = response.getBody();
+
+        assertThat(updatedTasks.size(), is(existedTasks.size() + 1));
+        updatedTasks.removeAll(existedTasks);
+        TaskDto addedTask = updatedTasks.get(0);
+        assertNotNull(addedTask.getId());
+        assertThatEqualsDummyTask(addedTask);
     }
 
     private void assertThatEqualsDummyTask(TaskDto task) {
@@ -100,17 +112,18 @@ public class CurrentUserActionResourceSystemTest {
         final HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<JWTToken> responseEntity = authenticate(new LoginDto(testUserProperties.getLogin(), testUserProperties.getPassword()));
+        ResponseEntity<JwtToken> responseEntity = authenticate(
+                new LoginDto(testUserProperties.getLogin(), testUserProperties.getPassword()));
         String idToken = responseEntity.getBody().getIdToken();
         httpHeaders.set("Authorization", "Bearer " + idToken);
         return httpHeaders;
     }
 
-    private ResponseEntity<JWTToken> authenticate(LoginDto loginDto) {
+    private ResponseEntity<JwtToken> authenticate(LoginDto loginDto) {
         return this.restTemplate.postForEntity(
-                        "/authenticate",
-                        loginDto,
-                        JWTToken.class);
+                "/authenticate",
+                loginDto,
+                JwtToken.class);
     }
 
 }

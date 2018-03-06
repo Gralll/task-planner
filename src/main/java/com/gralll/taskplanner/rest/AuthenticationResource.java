@@ -1,9 +1,11 @@
 package com.gralll.taskplanner.rest;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gralll.taskplanner.security.JWTFilter;
 import com.gralll.taskplanner.security.TokenProvider;
+import com.gralll.taskplanner.service.dto.JwtToken;
 import com.gralll.taskplanner.service.dto.LoginDto;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Collections;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@Api(value = "Authentication", description = "Expose API for authorization and getting a token")
 @RestController
 public class AuthenticationResource {
 
@@ -35,7 +40,9 @@ public class AuthenticationResource {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping("/authenticate")
+    @ApiOperation(value = "Authenticate current user and return bearer token")
+    @PostMapping(value = "/authenticate",
+            consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity authorize(@Valid @RequestBody LoginDto loginDto, HttpServletResponse response) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
@@ -46,32 +53,11 @@ public class AuthenticationResource {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = tokenProvider.createToken(authentication);
             response.addHeader(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-            return ResponseEntity.ok(new JWTToken(jwt));
+            return ResponseEntity.ok(new JwtToken(jwt));
         } catch (AuthenticationException ae) {
             log.trace("Authentication exception trace: {}", ae);
             return new ResponseEntity<>(Collections.singletonMap("AuthenticationException",
                     ae.getLocalizedMessage()), HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    static class JWTToken {
-
-        private String idToken;
-
-        JWTToken() {
-        }
-
-        JWTToken(String idToken) {
-            this.idToken = idToken;
-        }
-
-        @JsonProperty("id_token")
-        String getIdToken() {
-            return idToken;
-        }
-
-        void setIdToken(String idToken) {
-            this.idToken = idToken;
         }
     }
 }
