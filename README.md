@@ -1,6 +1,7 @@
 # Test application: Task planner
 
-It allow to work with users and tasks entities.
+It allows to work with user and task entities.
+The project to test custom security and Swagger.
 
 # Build
 
